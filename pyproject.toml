@@ -1,0 +1,83 @@
+[tool.black]
+line-length = 88
+skip-magic-trailing-comma = true
+
+[tool.poetry]
+name = "hokum"
+version = "0.1.0"
+description = "Wrap any CLI command as a Claude Code hook - with correct exit codes, stderr, and JSON"
+authors = ["garyd <github@gazza.id.au>"]
+license = "Apache-2.0"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development",
+    "Typing :: Typed",
+]
+packages = [
+    { include="hokum", from="src" },
+]
+
+[tool.poetry.dependencies]
+# When you change this, also update:
+#   - `tool.pyrefly.python-version` in this file
+#   - `tool.poetry.classifiers` in this file
+#   - `setup-python` steps in GitHub actions workflows
+python = "^3.10"
+
+[tool.poetry.group.dev-tools.dependencies]
+black = "=26.5.1"
+pyrefly = "^1"
+ruff = "~0.15"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^9"
+
+[tool.pyrefly]
+# Strict everywhere by default.
+preset = "strict"
+project-includes = [
+    "src/**/*.py*",
+    "tests/**/*.py*",
+]
+
+# Keep this in sync with `tool.poetry.dependencies.python`.
+python-version = "3.10"
+
+[[tool.pyrefly.sub-config]]
+# Test code has a relaxed expectation for type checking - most of the time
+# it adds noise and hassle without improving quality or readability.
+matches = "tests/**"
+
+[tool.pyrefly.sub-config.errors]
+# NB: The error configuration for `tests` here is merged onto the root config
+
+implicit-any-parameter = "ignore"
+missing-override-decorator = "ignore"
+
+[tool.ruff.lint]
+extend-select = [
+    # 'isort' import sorter
+    "I",
+]
+
+[tool.ruff.lint.isort]
+# One imported name per line, for cleaner change tracking
+force-single-line = true
+# Match black's config where we enable skip-magic-trailing-comma
+split-on-trailing-comma = false
+
+
+[build-system]
+requires = ["poetry-core>=2.4.0"]
+build-backend = "poetry.core.masonry.api"
