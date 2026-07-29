@@ -1,2 +1,4 @@
 # hokum
-Wrap any CLI command as a Claude Code hook — correct exit codes, stderr, and JSON
+
+Every CLI command already knows how to fail. `hokum` explains it to Claude Code properly.
+
