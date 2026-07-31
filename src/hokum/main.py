@@ -93,10 +93,7 @@ def main():
 
     try:
         proc = subprocess.run(
-            argv,
-            input=raw if args.stdin_json else "",
-            capture_output=True,
-            text=True,
+            argv, input=raw if args.stdin_json else "", capture_output=True, text=True
         )
     except (OSError, ValueError) as e:
         print(f"hookwrap: could not run {argv[0]!r}: {e}", file=sys.stderr)
