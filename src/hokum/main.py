@@ -41,6 +41,7 @@ import fnmatch
 import json
 import subprocess
 import sys
+from typing import Any
 
 
 def dig(obj, dotted):
@@ -75,7 +76,7 @@ def main():
 
     raw = sys.stdin.read()
     try:
-        event = json.loads(raw) if raw.strip() else {}
+        event: dict[str, Any] = json.loads(raw) if raw.strip() else {}
     except json.JSONDecodeError as e:
         print(f"hookwrap: could not parse event JSON: {e}", file=sys.stderr)
         return 2 if args.on_error == "block" else 0
