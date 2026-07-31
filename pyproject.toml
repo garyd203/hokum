@@ -54,15 +54,16 @@ project-includes = [
 # Keep this in sync with `tool.poetry.dependencies.python`.
 python-version = "3.10"
 
+[tool.pyrefly.errors]
+# We don't enforce typing, so implicit Any's are acceptable.
+implicit-any-parameter = "ignore"
+
 [[tool.pyrefly.sub-config]]
 # Test code has a relaxed expectation for type checking - most of the time
 # it adds noise and hassle without improving quality or readability.
 matches = "tests/**"
 
 [tool.pyrefly.sub-config.errors]
-# NB: The error configuration for `tests` here is merged onto the root config
-
-implicit-any-parameter = "ignore"
 missing-override-decorator = "ignore"
 
 [tool.ruff.lint]
