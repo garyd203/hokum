@@ -12,7 +12,8 @@ through a surprise-laden protocol all of its own — and ordinary CLI tools don'
 
 * **Input arrives as JSON on stdin.** The hook event (which tool ran, which file it
   touched, and so on) is delivered as a JSON document, not as command-line arguments.
-  A tool like `ruff check` wants a file path in argv and has no use for a JSON blob.
+  A tool like `ruff check` or `eslint` wants a file path in argv and has no use for a
+  JSON blob.
 * **Exit codes carry unusual meanings.** `0` is success. `2` means "block with an error
   if relevant for this hook, and feed stderr back to Claude". Anything else — including
   the exit code `1` that nearly every linter, formatter, and test runner uses to report
