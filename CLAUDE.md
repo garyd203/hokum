@@ -47,6 +47,8 @@ no error, releases just stop happening:
 * The Release workflow does not use the `.github/actions/setup-poetry`
   composite action: its build job never runs `poetry install`, so the
   action's dependency install and venv cache would be pure waste.
-* CI Python version is pinned in `.github/actions/setup-poetry/action.yml`
-  and `manual-release.yml` - keep in sync with `tool.poetry.dependencies`
-  (see the comment there).
+* The minimum Python version appears in `pyproject.toml`,
+  `.github/actions/setup-poetry/action.yml` and `manual-release.yml`. Bump
+  them all together with
+  `bump-my-version bump minor --config-file min-python-version.toml`, then update
+  the trove classifiers by hand and re-run `poetry lock`.
