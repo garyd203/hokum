@@ -15,6 +15,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - name: Require main branch
         if: github.ref != 'refs/heads/main'
@@ -23,6 +25,23 @@ jobs:
           exit 1
 
       - uses: actions/checkout@v7
+
+      - name: Read version
+        id: version
+        run: |
+          VERSION=$(sed -nE 's/^version = "([0-9]+\.[0-9]+\.[0-9]+)".*/\1/p' pyproject.toml)
+          test -n "$VERSION" || { echo "::error::Could not parse version from pyproject.toml"; exit 1; }
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Check version is unreleased
+        run: |
+          STATUS=$(curl --silent --output /dev/null --write-out '%{http_code}' \
+            "https://pypi.org/pypi/hokum/${{ steps.version.outputs.version }}/json")
+          case "$STATUS" in
+            404) echo "Version ${{ steps.version.outputs.version }} is unreleased - proceeding" ;;
+            200) echo "::error::hokum ${{ steps.version.outputs.version }} already exists on PyPI"; exit 1 ;;
+            *)   echo "::error::Unexpected PyPI response ${STATUS}"; exit 1 ;;
+          esac
 
       - name: Set up Python
         uses: actions/setup-python@v7
@@ -59,7 +78,7 @@ jobs:
 
   tag:
     # Separate job for git tagging, with elevated github permissions
-    needs: publish
+    needs: [build, publish]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -68,7 +87,5 @@ jobs:
 
       - name: Tag release
         run: |
-          VERSION=$(sed -nE 's/^version = "([0-9]+\.[0-9]+\.[0-9]+)".*/\1/p' pyproject.toml)
-          test -n "$VERSION" || { echo "::error::Could not parse version"; exit 1; }
-          git tag "v${VERSION}"
-          git push origin "v${VERSION}"
+          git tag "v${{ needs.build.outputs.version }}"
+          git push origin "v${{ needs.build.outputs.version }}"
