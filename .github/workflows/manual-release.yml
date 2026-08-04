@@ -45,7 +45,7 @@ jobs:
           case "$STATUS" in
             404) echo "is_releaseable=true" >> "$GITHUB_OUTPUT" ;;
             200) echo "is_releaseable=false" >> "$GITHUB_OUTPUT"
-                 echo "🤷 No release - hokum ${{ steps.version.outputs.version }} is already on PyPI" | tee -a "$GITHUB_STEP_SUMMARY" ;;
+                 echo "::notice title=No release::hokum ${{ steps.version.outputs.version }} is already on PyPI" ;;
             *)   echo "::error::Unexpected PyPI response ${STATUS}"; exit 1 ;;
           esac
 
@@ -143,4 +143,23 @@ jobs:
             echo "::error::Expected version ${VERSION} in output"
             exit 1
           fi
-          echo "🎉 Released [hokum ${VERSION}](https://pypi.org/project/hokum/${VERSION}/) to PyPI" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "::notice title=Released::hokum ${VERSION} published to PyPI and verified"
+
+  report:
+    # Single consolidated summary for the whole run, whichever path it took
+    needs: [should-release, smoke-test, tag]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Write release report
+        run: |
+          VERSION="${{ needs.should-release.outputs.version }}"
+          if [[ "${{ needs.should-release.result }}" != "success" ]]; then
+            echo "⚠️ No release - code checks failed or the version could not be determined" | tee -a "$GITHUB_STEP_SUMMARY"
+          elif [[ "${{ needs.should-release.outputs.is_releaseable }}" != "true" ]]; then
+            echo "🤷 No release - hokum ${VERSION} is already on PyPI" | tee -a "$GITHUB_STEP_SUMMARY"
+          elif [[ "${{ needs.smoke-test.result }}" == "success" && "${{ needs.tag.result }}" == "success" ]]; then
+            echo "🎉 Released [hokum ${VERSION}](https://pypi.org/project/hokum/${VERSION}/) to PyPI and tagged v${VERSION}" | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            echo "💥 Release of hokum ${VERSION} did not complete cleanly (smoke-test: ${{ needs.smoke-test.result }}, tag: ${{ needs.tag.result }})" | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
