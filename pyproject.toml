@@ -4,7 +4,7 @@ skip-magic-trailing-comma = true
 
 [tool.poetry]
 name = "hokum"
-version = "0.1.0"
+version = "0.1.0" # managed by bump-my-version
 description = "Wrap any CLI command as a Claude Code hook - with correct exit codes, stderr, and JSON"
 authors = ["garyd <github@gazza.id.au>"]
 license = "Apache-2.0"
@@ -41,9 +41,24 @@ cyclopts = "^4.22"
 black = "=26.5.1"
 pyrefly = "^1"
 ruff = "~0.15"
+bump-my-version = "^1.5.0"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^9"
+
+[tool.bumpversion]
+current_version = "0.1.0"
+
+[[tool.bumpversion.files]]
+# The source of truth for the version.
+filename = "src/hokum/__about__.py"
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+# Anchored to line start so this can't match `current_version` above.
+regex = true
+search = "^version = \"{current_version}\""
+replace = "version = \"{new_version}\""
 
 [tool.pyrefly]
 # Strict everywhere by default.
