@@ -109,3 +109,37 @@ jobs:
         run: |
           git tag "v${{ needs.should-release.outputs.version }}"
           git push origin "v${{ needs.should-release.outputs.version }}"
+
+  smoke-test:
+    # Install the released package and check that it actually runs
+    needs: [should-release, publish]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.10"
+
+      - name: Install from PyPI
+        run: |
+          VERSION="${{ needs.should-release.outputs.version }}"
+          # The index can lag the upload by a little, so retry.
+          for attempt in $(seq 1 5); do
+            if pip install "hokum==${VERSION}"; then
+              exit 0
+            fi
+            echo "hokum ${VERSION} not installable yet (attempt ${attempt}/5)"
+            sleep 30
+          done
+          echo "::error::hokum ${VERSION} never became installable on PyPI"
+          exit 1
+
+      - name: Run Tool
+        run: |
+          VERSION="${{ needs.should-release.outputs.version }}"
+          OUTPUT=$(hokum --version)
+          echo "hokum --version -> ${OUTPUT}"
+          if [[ "$OUTPUT" != *"$VERSION"* ]]; then
+            echo "::error::Expected version ${VERSION} in output"
+            exit 1
+          fi
