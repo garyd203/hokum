@@ -1,0 +1,47 @@
+# bump-my-version config for the minimum supported Python version.
+#
+# NB: This is not the package version for `hokum` itself - that config lives in
+# pyproject.toml.
+#
+# Bump the python floor with:
+#
+#     bump-my-version bump minor --config-file min-python-version.toml
+#
+# Not covered here, so update by hand when bumping:
+#   - the trove classifier ladder in pyproject.toml (delete the old floor's
+#     classifier; review the top rung while you're there)
+#   - `poetry lock` afterwards
+
+[tool.bumpversion]
+current_version = "3.10"
+parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)"
+serialize = ["{major}.{minor}"]
+
+[[tool.bumpversion.files]]
+# The main Python version
+filename = "pyproject.toml"
+search = "python = \"^{current_version}\""
+replace = "python = \"^{new_version}\""
+
+[[tool.bumpversion.files]]
+# tool.pyrefly.python-version
+filename = "pyproject.toml"
+search = "python-version = \"{current_version}\""
+replace = "python-version = \"{new_version}\""
+
+[[tool.bumpversion.files]]
+filename = ".github/actions/setup-poetry/action.yml"
+search = "python-version: \"{current_version}\""
+replace = "python-version: \"{new_version}\""
+
+[[tool.bumpversion.files]]
+# The venv cache key.
+filename = ".github/actions/setup-poetry/action.yml"
+search = "py{current_version}-"
+replace = "py{new_version}-"
+
+[[tool.bumpversion.files]]
+# Covers both setup-python pins (build and smoke-test jobs).
+filename = ".github/workflows/manual-release.yml"
+search = "python-version: \"{current_version}\""
+replace = "python-version: \"{new_version}\""
