@@ -1,7 +1,10 @@
 name: Release
 
 on:
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["Code Checks"]
+    types: [completed]
+    branches: [main]
 
 # Read-only GHA token by default
 permissions:
@@ -13,12 +16,19 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  # A release happens iff this commit's version isn't on PyPI yet.
+  # Skipping (rather than failing) keeps routine merges green.
+
+  should-release:
+    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
+      is_releaseable: ${{ steps.check.outputs.is_releaseable }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Read version
         id: version
@@ -27,15 +37,26 @@ jobs:
           test -n "$VERSION" || { echo "::error::Could not parse version from pyproject.toml"; exit 1; }
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
-      - name: Check version is unreleased
+      - name: Check whether version is on PyPI
+        id: check
         run: |
           STATUS=$(curl --silent --output /dev/null --write-out '%{http_code}' \
             "https://pypi.org/pypi/hokum/${{ steps.version.outputs.version }}/json")
           case "$STATUS" in
-            404) echo "Version ${{ steps.version.outputs.version }} is unreleased - proceeding" ;;
-            200) echo "::error::hokum ${{ steps.version.outputs.version }} already exists on PyPI"; exit 1 ;;
+            404) echo "is_releaseable=true" >> "$GITHUB_OUTPUT" ;;
+            200) echo "is_releaseable=false" >> "$GITHUB_OUTPUT"
+                 echo "hokum ${{ steps.version.outputs.version }} is already on PyPI - nothing to release" ;;
             *)   echo "::error::Unexpected PyPI response ${STATUS}"; exit 1 ;;
           esac
+
+  build:
+    needs: should-release
+    if: needs.should-release.outputs.is_releaseable == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Set up Python
         uses: actions/setup-python@v7
@@ -75,14 +96,16 @@ jobs:
 
   tag:
     # Separate job for git tagging, with elevated github permissions
-    needs: [build, publish]
+    needs: [should-release, publish]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Tag release
         run: |
-          git tag "v${{ needs.build.outputs.version }}"
-          git push origin "v${{ needs.build.outputs.version }}"
+          git tag "v${{ needs.should-release.outputs.version }}"
+          git push origin "v${{ needs.should-release.outputs.version }}"
