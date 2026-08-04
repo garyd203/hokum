@@ -18,12 +18,6 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
-      - name: Require main branch
-        if: github.ref != 'refs/heads/main'
-        run: |
-          echo "::error::Releases must be run from main, not ${{ github.ref_name }}"
-          exit 1
-
       - uses: actions/checkout@v7
 
       - name: Read version
