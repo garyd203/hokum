@@ -45,7 +45,7 @@ jobs:
           case "$STATUS" in
             404) echo "is_releaseable=true" >> "$GITHUB_OUTPUT" ;;
             200) echo "is_releaseable=false" >> "$GITHUB_OUTPUT"
-                 echo "hokum ${{ steps.version.outputs.version }} is already on PyPI - nothing to release" ;;
+                 echo "🤷 No release - hokum ${{ steps.version.outputs.version }} is already on PyPI" | tee -a "$GITHUB_STEP_SUMMARY" ;;
             *)   echo "::error::Unexpected PyPI response ${STATUS}"; exit 1 ;;
           esac
 
@@ -143,3 +143,4 @@ jobs:
             echo "::error::Expected version ${VERSION} in output"
             exit 1
           fi
+          echo "🎉 Released [hokum ${VERSION}](https://pypi.org/project/hokum/${VERSION}/) to PyPI" | tee -a "$GITHUB_STEP_SUMMARY"
