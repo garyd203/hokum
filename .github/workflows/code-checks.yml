@@ -1,4 +1,4 @@
-name: Validate
+name: Code Checks
 
 on:
   pull_request:
@@ -13,32 +13,14 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  checks:
+  style-checks:
     runs-on: ubuntu-latest
     steps:
       # `!cancelled()` on each check so that one failure doesn't hide the others
 
       - uses: actions/checkout@v7
 
-      - name: Set up Python
-        uses: actions/setup-python@v7
-        with:
-          python-version: "3.10"
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Cache virtualenv
-        uses: actions/cache@v6
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-py3.10-${{ hashFiles('poetry.lock') }}
-
-      - name: Install dependencies
-        run: poetry install --no-interaction --with dev-tools,test
+      - uses: ./.github/actions/setup-poetry
 
       - name: Ruff
         if: ${{ !cancelled() }}
@@ -51,6 +33,13 @@ jobs:
       - name: Type checking
         if: ${{ !cancelled() }}
         run: poetry run pyrefly check --output-format=github
+
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup-poetry
 
       - name: Tests
         if: ${{ !cancelled() }}
