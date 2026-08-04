@@ -8,6 +8,9 @@ version = "0.2.0" # managed by bump-my-version
 description = "Wrap any CLI command as a Claude Code hook - with correct exit codes, stderr, and JSON"
 authors = ["garyd <github@gazza.id.au>"]
 license = "Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/garyd203/hokum"
+keywords = ["claude-code", "hooks", "cli", "agents"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Environment :: Console",
@@ -28,6 +31,10 @@ classifiers = [
 packages = [
     { include="hokum", from="src" },
 ]
+
+[tool.poetry.urls]
+"Changelog" = "https://github.com/garyd203/hokum/blob/main/CHANGELOG.md"
+"Issues" = "https://github.com/garyd203/hokum/issues"
 
 [tool.poetry.dependencies]
 # When you change this, also update:
