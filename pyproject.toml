@@ -36,6 +36,9 @@ packages = [
 "Changelog" = "https://github.com/garyd203/hokum/blob/main/CHANGELOG.md"
 "Issues" = "https://github.com/garyd203/hokum/issues"
 
+[tool.poetry.scripts]
+hokum = "hokum.main:app"
+
 [tool.poetry.dependencies]
 # When you change this, also update:
 #   - `tool.pyrefly.python-version` in this file
