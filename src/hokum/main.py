@@ -12,7 +12,11 @@ from cyclopts import App
 from cyclopts import Parameter
 from cyclopts.exceptions import CycloptsError
 
-app = App(name="hokum", exit_on_error=False, help_format="markdown")
+from hokum import __version__
+
+app = App(
+    name="hokum", version=__version__, exit_on_error=False, help_format="markdown"
+)
 
 
 def dig(obj: Any, dotted: str) -> Any:
