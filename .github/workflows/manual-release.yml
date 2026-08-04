@@ -1,0 +1,74 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+# Read-only GHA token by default
+permissions:
+  contents: read
+
+concurrency:
+  # Never run two releases at once, and never cancel one mid-publish.
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require main branch
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::Releases must be run from main, not ${{ github.ref_name }}"
+          exit 1
+
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.10"
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+
+      - name: Build
+        run: poetry build --no-interaction
+
+      - name: Upload distribution
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    # Separate job for PyPI publishing, with elevated github permissions
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # mint the OIDC token used for PyPI trusted publishing
+    steps:
+      - name: Download distribution
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+  tag:
+    # Separate job for git tagging, with elevated github permissions
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Tag release
+        run: |
+          VERSION=$(sed -nE 's/^version = "([0-9]+\.[0-9]+\.[0-9]+)".*/\1/p' pyproject.toml)
+          test -n "$VERSION" || { echo "::error::Could not parse version"; exit 1; }
+          git tag "v${VERSION}"
+          git push origin "v${VERSION}"
