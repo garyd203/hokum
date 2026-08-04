@@ -64,6 +64,9 @@ jobs:
     # Separate job for PyPI publishing, with elevated github permissions
     needs: build
     runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/hokum/
     permissions:
       id-token: write  # mint the OIDC token used for PyPI trusted publishing
     steps:
