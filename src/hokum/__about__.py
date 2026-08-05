@@ -1,1 +1,1 @@
-__version__ = "0.3.0"  # managed by bump-my-version
+__version__ = "0.4.0"  # managed by bump-my-version
