@@ -1,13 +1,18 @@
 name: Set up Poetry environment
 description: Python + Poetry + cached venv + installed dependencies
 
+inputs:
+  python-version:
+    description: Python version to install
+    default: "3.10" # managed by min-python-version.toml
+
 runs:
   using: composite
   steps:
     - name: Set up Python
       uses: actions/setup-python@v7
       with:
-        python-version: "3.10" # managed by min-python-version.toml
+        python-version: ${{ inputs.python-version }}
 
     - name: Install Poetry
       uses: snok/install-poetry@v1
@@ -19,7 +24,7 @@ runs:
       uses: actions/cache@v6
       with:
         path: .venv
-        key: venv-${{ runner.os }}-py3.10-${{ hashFiles('poetry.lock') }} # managed by min-python-version.toml
+        key: venv-${{ runner.os }}-py${{ inputs.python-version }}-${{ hashFiles('poetry.lock') }}
 
     - name: Install dependencies
       shell: bash
