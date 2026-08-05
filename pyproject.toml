@@ -46,14 +46,17 @@ packages = [
     { include="hokum", from="src" },
 ]
 
-[tool.poetry.group.dev-tools.dependencies]
-black = "=26.5.1"
-pyrefly = "~1"
-ruff = "~0.15"
-bump-my-version = "~1.5"
-
-[tool.poetry.group.test.dependencies]
-pytest = "~9"
+[dependency-groups]
+dev-tools = [
+    # NB: black uses CalVer
+    "black>=26.5.1",
+    "pyrefly>=1,<2",
+    "ruff>=0.15",
+    "bump-my-version>=1.5,<2",
+]
+test = [
+    "pytest>=9,<10",
+]
 
 [tool.bumpversion]
 current_version = "0.3.0"
