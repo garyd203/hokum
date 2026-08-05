@@ -10,6 +10,7 @@
 # Not covered here, so update by hand when bumping:
 #   - the trove classifier ladder in pyproject.toml (delete the old floor's
 #     classifier; review the top rung while you're there)
+#   - the `python-version` matrix in code-checks.yml (drop the old floor)
 #   - `poetry lock` afterwards
 
 [tool.bumpversion]
@@ -30,15 +31,10 @@ search = "python-version = \"{current_version}\""
 replace = "python-version = \"{new_version}\""
 
 [[tool.bumpversion.files]]
+# The default (minimum) Python for the `python-version` input.
 filename = ".github/actions/setup-poetry/action.yml"
-search = "python-version: \"{current_version}\""
-replace = "python-version: \"{new_version}\""
-
-[[tool.bumpversion.files]]
-# The venv cache key.
-filename = ".github/actions/setup-poetry/action.yml"
-search = "py{current_version}-"
-replace = "py{new_version}-"
+search = "default: \"{current_version}\""
+replace = "default: \"{new_version}\""
 
 [[tool.bumpversion.files]]
 # Covers both setup-python pins (build and smoke-test jobs).
