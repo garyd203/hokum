@@ -20,8 +20,8 @@ serialize = ["{major}.{minor}"]
 [[tool.bumpversion.files]]
 # The main Python version
 filename = "pyproject.toml"
-search = "python = \"^{current_version}\""
-replace = "python = \"^{new_version}\""
+search = "requires-python = \">={current_version}\""
+replace = "requires-python = \">={new_version}\""
 
 [[tool.bumpversion.files]]
 # tool.pyrefly.python-version

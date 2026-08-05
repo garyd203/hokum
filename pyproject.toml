@@ -2,20 +2,21 @@
 line-length = 88
 skip-magic-trailing-comma = true
 
-[tool.poetry]
+[project]
 name = "hokum"
 version = "0.3.0" # managed by bump-my-version
 description = "Wrap any CLI command as a Claude Code hook - with correct exit codes, stderr, and JSON"
-authors = ["garyd <github@gazza.id.au>"]
+authors = [
+    { name="garyd", email="github@gazza.id.au" },
+]
 license = "Apache-2.0"
 readme = "README.md"
-repository = "https://github.com/garyd203/hokum"
+requires-python = ">=3.10" # managed by min-python-version.toml
 keywords = ["claude-code", "hooks", "cli", "agents"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Console",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3",
@@ -28,20 +29,22 @@ classifiers = [
     "Topic :: Utilities",
     "Typing :: Typed",
 ]
-packages = [
-    { include="hokum", from="src" },
+dependencies = [
+    "cyclopts>=4.22,<5",
 ]
 
-[tool.poetry.urls]
+[project.urls]
+"Repository" = "https://github.com/garyd203/hokum"
 "Changelog" = "https://github.com/garyd203/hokum/blob/main/CHANGELOG.md"
 "Issues" = "https://github.com/garyd203/hokum/issues"
 
-[tool.poetry.scripts]
+[project.scripts]
 hokum = "hokum.main:app"
 
-[tool.poetry.dependencies]
-python = "^3.10" # managed by min-python-version.toml
-cyclopts = "^4.22"
+[tool.poetry]
+packages = [
+    { include="hokum", from="src" },
+]
 
 [tool.poetry.group.dev-tools.dependencies]
 black = "=26.5.1"

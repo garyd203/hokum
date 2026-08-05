@@ -35,15 +35,17 @@ no error, releases just stop happening:
   is in `pyproject.toml`).
 * Source of truth is `src/hokum/__about__.py`; `pyproject.toml` is rewritten
   to match.
-* The release workflow parses the version with a `sed` match on the first
-  `^version = "..."` line in `pyproject.toml`, so that line must stay in
-  `[tool.poetry]` form.
+* The release workflow parses the version with a `sed` match on
+  `^version = "..."` lines in `pyproject.toml`, so the `[project]` version
+  must stay static (no `dynamic = ["version"]`) and be the only line matching
+  that pattern.
 
 ## Deliberate choices that look like mistakes
 
-* Package metadata uses the legacy `[tool.poetry]` format, so `poetry check`
-  emits deprecation warnings. Migrating to PEP 621 `[project]` is a deliberate
-  future task - don't fix the warnings piecemeal.
+* There is no `License ::` trove classifier: PEP 639 deprecates license
+  classifiers in favour of the SPDX expression in `[project]` `license`.
+* Classifiers are defined in `[project]`, which disables Poetry's automatic
+  classifier enrichment - the Python version ladder is maintained by hand.
 * The Release workflow does not use the `.github/actions/setup-poetry`
   composite action: its build job never runs `poetry install`, so the
   action's dependency install and venv cache would be pure waste.
