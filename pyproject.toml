@@ -4,7 +4,7 @@ skip-magic-trailing-comma = true
 
 [project]
 name = "hokum"
-version = "0.4.0" # managed by bump-my-version
+version = "0.4" # managed by bump-my-version
 description = "Wrap any CLI command as a Claude Code hook - with correct exit codes, stderr, and JSON"
 authors = [
     { name="garyd", email="github@gazza.id.au" },
@@ -59,18 +59,19 @@ test = [
 ]
 
 [tool.bumpversion]
-current_version = "0.4.0"
+current_version = "0.4"
+parse = '(?P<major>\d+)\.(?P<minor>\d+)'
+serialize = ["{major}.{minor}"]
 
 [[tool.bumpversion.files]]
 # The source of truth for the version.
 filename = "src/hokum/__about__.py"
 
 [[tool.bumpversion.files]]
-filename = "pyproject.toml"
-# Anchored to line start so this can't match `current_version` above.
-regex = true
-search = "^version = \"{current_version}\""
-replace = "version = \"{new_version}\""
+# Rotate the changelog's Unreleased section into the new version's section.
+filename = "CHANGELOG.md"
+search = "## [Unreleased]"
+replace = "## [Unreleased]\n\n\n## [v{new_version}] - {utcnow:%Y-%m-%d}"
 
 [tool.pyrefly]
 # Strict everywhere by default.

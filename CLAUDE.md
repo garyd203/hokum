@@ -31,7 +31,7 @@ no error, releases just stop happening:
 
 ## Version management
 
-* Bump with `bump-my-version bump patch|minor|major` (no commit/tag - config
+* Bump with `bump-my-version bump minor|major` (no commit/tag - config
   is in `pyproject.toml`).
 * Source of truth is `src/hokum/__about__.py`; `pyproject.toml` is rewritten
   to match.
