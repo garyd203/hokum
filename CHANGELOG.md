@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [v0.5] - 2026-09-16
+
 ### Added
 
 - New `--on-missing` parameter, to enable shared hook definitions that
