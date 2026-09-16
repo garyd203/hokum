@@ -27,6 +27,19 @@ def dig(obj: Any, dotted: str) -> Any:
     return obj
 
 
+def advise(event: dict[str, Any], message: str) -> None:
+    """Surface a message to Claude as context without ending the turn."""
+    json.dump(
+        {
+            "hookSpecificOutput": {
+                "hookEventName": event.get("hook_event_name", "PostToolUse"),
+                "additionalContext": message,
+            }
+        },
+        sys.stdout,
+    )
+
+
 @app.default
 def main(
     *cmd: str,
@@ -34,6 +47,7 @@ def main(
     only: Annotated[list[str], Parameter(negative=())] = [],
     stdin_json: Annotated[bool, Parameter(negative=())] = False,
     on_error: Literal["allow", "block"] = "allow",
+    on_missing: Literal["skip", "advise", "block"] = "advise",
     advisory: Annotated[bool, Parameter(negative=())] = False,
     verbose: Annotated[bool, Parameter(negative="--quiet")] = False,
 ) -> int:
@@ -67,6 +81,9 @@ def main(
         Pipe the raw event JSON to the command's stdin instead of appending a field.
     on_error
         Behaviour when the shim itself fails.
+    on_missing
+        Behaviour when the wrapped executable isn't installed: `skip` exits 0
+        silently, `advise` exits 0 and tells Claude, `block` exits 2.
     advisory
         Report failures to Claude without blocking (exit 0 + JSON on stdout).
     verbose
@@ -98,6 +115,14 @@ def main(
         proc = subprocess.run(
             argv, input=raw if stdin_json else "", capture_output=True, text=True
         )
+    except FileNotFoundError:
+        message = f"{argv[0]} isn't installed in this environment"
+        if on_missing == "block":
+            print(f"hokum: {message}", file=sys.stderr)
+            return 2
+        if on_missing == "advise":
+            advise(event, message)
+        return 0
     except (OSError, ValueError) as e:
         print(f"hokum: could not run {argv[0]!r}: {e}", file=sys.stderr)
         return 2 if on_error == "block" else 0
@@ -112,16 +137,7 @@ def main(
     message = output or f"{argv[0]} exited {proc.returncode} with no output"
 
     if advisory:
-        # Surface it to Claude as context without ending the turn.
-        json.dump(
-            {
-                "hookSpecificOutput": {
-                    "hookEventName": event.get("hook_event_name", "PostToolUse"),
-                    "additionalContext": message,
-                }
-            },
-            sys.stdout,
-        )
+        advise(event, message)
         return 0
 
     print(message, file=sys.stderr)

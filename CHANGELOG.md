@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Test on all OS'es and multiple Python versions.
+- New `--on-missing` parameter, to enable shared hook definitions that
+  fail gracefully when the underlying tool is missing in the current project.
 
 
 ## [v0.4.0]
