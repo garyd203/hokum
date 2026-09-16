@@ -4,7 +4,7 @@ skip-magic-trailing-comma = true
 
 [project]
 name = "hokum"
-version = "0.4" # managed by bump-my-version
+version = "0.5" # managed by bump-my-version
 description = "Wrap any CLI command as a Claude Code hook - with correct exit codes, stderr, and JSON"
 authors = [
     { name="garyd", email="github@gazza.id.au" },
@@ -59,7 +59,7 @@ test = [
 ]
 
 [tool.bumpversion]
-current_version = "0.4"
+current_version = "0.5"
 parse = '(?P<major>\d+)\.(?P<minor>\d+)'
 serialize = ["{major}.{minor}"]
 
