@@ -99,7 +99,7 @@ def main(
             argv, input=raw if stdin_json else "", capture_output=True, text=True
         )
     except (OSError, ValueError) as e:
-        print(f"hokun: could not run {argv[0]!r}: {e}", file=sys.stderr)
+        print(f"hokum: could not run {argv[0]!r}: {e}", file=sys.stderr)
         return 2 if on_error == "block" else 0
 
     output = (proc.stdout + proc.stderr).strip()
